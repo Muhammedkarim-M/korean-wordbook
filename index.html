@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Wordbook</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
+            min-height: 100vh;
+        }
+        .aurora-bg {
+            background-image: url('https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .glass {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="aurora-bg text-white flex items-center justify-center p-4">
+
+    <!-- Asosiy Konteyner -->
+    <div id="app" class="w-full max-w-md glass rounded-3xl p-6 shadow-2xl relative overflow-hidden min-h-[550px] flex flex-col justify-between">
+        
+        <!-- 1. BOSH SAHIFA -->
+        <div id="home-view" class="flex flex-col items-center justify-center flex-1 space-y-8 my-auto">
+            <div class="text-center space-y-2">
+                <p class="text-emerald-400 font-semibold uppercase tracking-widest text-sm">Korean Wordbook</p>
+                <h1 class="text-4xl font-extrabold tracking-tight">Xush kelibsiz</h1>
+                <p class="text-slate-300 text-sm">Koreys tilidagi so'zlaringizni jamlang va test qiling</p>
+            </div>
+
+            <div class="flex flex-col w-full space-y-4">
+                <button onclick="renderDictionaryList()" class="w-full py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-full shadow-lg transition transform active:scale-95 text-center cursor-pointer">
+                    Lug'atlar
+                </button>
+                <button onclick="renderNewDictionaryForm()" class="w-full py-4 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-full shadow-lg transition transform active:scale-95 text-center cursor-pointer">
+                    Yangi lug'at +
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. LUG'ATLAR RO'YXATI OYNASI -->
+        <div id="dict-list-view" class="hidden flex-col flex-1">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="renderHome()" class="text-slate-300 hover:text-white text-sm font-semibold flex items-center gap-1 cursor-pointer">← Orqaga</button>
+                <h2 class="text-xl font-bold">Mening Lug'atlarim</h2>
+                <div class="w-10"></div>
+            </div>
+            <div id="dictionaries-container" class="space-y-3 overflow-y-auto max-h-[400px] pr-1 flex-1">
+                <!-- Lug'atlar shu yerga dinamik chiqadi -->
+            </div>
+        </div>
+
+        <!-- 3. YANGI LUG'AT YARATISH OYNASI -->
+        <div id="new-dict-view" class="hidden flex-col flex-1">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="renderHome()" class="text-slate-300 hover:text-white text-sm font-semibold flex items-center gap-1 cursor-pointer">← Orqaga</button>
+                <h2 class="text-xl font-bold">Yangi Lug'at Yaratish</h2>
+                <div class="w-10"></div>
+            </div>
+            
+            <div class="space-y-4 flex-1">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Lug'at Nomi</label>
+                    <input type="text" id="new-dict-name" placeholder="Masalan: Kundalik so'zlar" class="w-full px-4 py-3 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <div class="border-t border-slate-700/60 pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-semibold text-slate-200">So'zlar qo'shish</span>
+                        <button onclick="addWordRow()" class="px-3 py-1 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 text-xs font-bold rounded-lg cursor-pointer">+ Qo'shish</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-1">
+                        <span>Koreyscha</span>
+                        <span>O'zbekcha</span>
+                    </div>
+                    <div id="words-inputs-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <div class="grid grid-cols-2 gap-2 word-row">
+                            <input type="text" placeholder="Koreyscha" class="kr-input px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+                            <input type="text" placeholder="O'zbekcha" class="uz-input px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="saveNewDictionary()" class="w-full mt-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl shadow-lg transition cursor-pointer">
+                Saqlash
+            </button>
+        </div>
+
+        <!-- 4. LUG'AT TAFSILOTI OYNASI (Ko'rish, Tahrirlash, Test) -->
+        <div id="dict-detail-view" class="hidden flex-col flex-1">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="renderDictionaryList()" class="text-slate-300 hover:text-white text-sm font-semibold cursor-pointer">← Orqaga</button>
+                <h2 id="detail-dict-title" class="text-xl font-bold text-cyan-400">Lug'at Nomi</h2>
+                <button onclick="deleteCurrentDictionary()" class="text-rose-400 hover:text-rose-300 text-xs font-semibold cursor-pointer">O'chirish</button>
+            </div>
+
+            <div id="detail-words-list" class="space-y-2 overflow-y-auto max-h-[260px] pr-1 flex-1 mb-4 bg-slate-900/40 p-3 rounded-2xl border border-slate-800">
+                <!-- So'zlar ro'yxati -->
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openEditDictionary()" class="py-3 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold rounded-xl border border-slate-700 text-center transition cursor-pointer">
+                    Tahrirlash →
+                </button>
+                <button onclick="startTest()" class="py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg text-center transition cursor-pointer">
+                    Test →
+                </button>
+            </div>
+        </div>
+
+        <!-- 5. TAHRIRLASH OYNASI -->
+        <div id="dict-edit-view" class="hidden flex-col flex-1">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="openDictionaryDetail(currentDictId)" class="text-slate-300 hover:text-white text-sm font-semibold cursor-pointer">← Orqaga</button>
+                <h2 class="text-xl font-bold">Lug'atni Tahrirlash</h2>
+                <div class="w-10"></div>
+            </div>
+            
+            <div class="space-y-3 flex-1">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Lug'at Nomi</label>
+                    <input type="text" id="edit-dict-name" class="w-full px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-700 text-white focus:outline-none focus:border-cyan-400">
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-semibold text-slate-300">So'zlar</span>
+                    <button onclick="addEditWordRow('', '')" class="px-2 py-1 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 text-xs font-bold rounded cursor-pointer">+ Qo'shish</button>
+                </div>
+                <div id="edit-words-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                    <!-- Tahrirlash so'zlari -->
+                </div>
+            </div>
+
+            <button onclick="saveEditedDictionary()" class="w-full mt-3 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl shadow-lg transition cursor-pointer">
+                O'zgarishlarni Saqlash
+            </button>
+        </div>
+
+        <!-- 6. TEST OYNASI -->
+        <div id="test-view" class="hidden flex-col flex-1 justify-between">
+            <div class="flex items-center justify-between mb-2">
+                <button onclick="openDictionaryDetail(currentDictId)" class="text-slate-300 hover:text-white text-sm font-semibold cursor-pointer">✕ Chiqish</button>
+                <span id="test-progress" class="text-xs font-semibold text-cyan-400">Savol 1 / 5</span>
+                <div class="w-10"></div>
+            </div>
+
+            <div class="my-auto space-y-6">
+                <!-- Koreyscha so'z ko'rsatiladigan asosiy panel -->
+                <div class="p-6 rounded-2xl bg-gradient-to-r from-indigo-600/60 to-purple-600/60 border border-indigo-400/30 text-center shadow-lg">
+                    <span class="text-xs uppercase tracking-widest text-indigo-200 block mb-1">Koreyscha so'z</span>
+                    <h3 id="test-question-word" class="text-3xl font-extrabold text-white">Aniyo</h3>
+                </div>
+
+                <!-- 4 ta javob varianti -->
+                <div id="test-options-container" class="grid grid-cols-1 gap-3">
+                    <!-- Variantlar dinamik chiqadi -->
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button id="next-question-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl shadow-lg transition cursor-pointer">
+                    Keyingi savol →
+                </button>
+            </div>
+        </div>
+
+        <!-- 7. TEST NATIJA OYNASI -->
+        <div id="test-result-view" class="hidden flex-col items-center justify-center flex-1 space-y-6 text-center my-auto">
+            <div class="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400 text-4xl mb-2">🏆</div>
+            <div>
+                <h2 class="text-2xl font-bold mb-1">Test Yakunlandi!</h2>
+                <p class="text-slate-300 text-sm">Sizning natijangiz:</p>
+            </div>
+
+            <div class="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">To'g'ri javoblar:</span>
+                    <span id="result-correct" class="font-bold text-emerald-400">4</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-slate-400">Xato javoblar:</span>
+                    <span id="result-wrong" class="font-bold text-rose-400">1</span>
+                </div>
+                <div class="flex justify-between text-sm border-t border-slate-800 pt-2">
+                    <span class="text-slate-400">Foiz ko'rsatkichi:</span>
+                    <span id="result-percent" class="font-bold text-cyan-400">80%</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col w-full space-y-2">
+                <button onclick="startTest()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl shadow-lg transition cursor-pointer">
+                    Qaytadan sinash
+                </button>
+                <button onclick="openDictionaryDetail(currentDictId)" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl border border-slate-700 transition cursor-pointer">
+                    Lug'atga qaytish
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Mantiqi -->
+    <script>
+        // Ma'lumotlarni LocalStorage dan olish yoki boshlang'ich bo'sh massiv
+        let dictionaries = JSON.parse(localStorage.getItem('korean_dictionaries')) || [];
+        let currentDictId = null;
+        
+        // Test o'zgaruvchilari
+        let currentTestQuestions = [];
+        let currentTestIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let answered = false;
+
+        function saveToStorage() {
+            localStorage.setItem('korean_dictionaries', JSON.stringify(dictionaries));
+        }
+
+        // Sahifalarni boshqarish funksiyalari
+        function hideAllViews() {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('dict-list-view').classList.add('hidden');
+            document.getElementById('new-dict-view').classList.add('hidden');
+            document.getElementById('dict-detail-view').classList.add('hidden');
+            document.getElementById('dict-edit-view').classList.add('hidden');
+            document.getElementById('test-view').classList.add('hidden');
+            document.getElementById('test-result-view').classList.add('hidden');
+        }
+
+        function renderHome() {
+            hideAllViews();
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('home-view').classList.add('flex');
+        }
+
+        function renderDictionaryList() {
+            hideAllViews();
+            const container = document.getElementById('dictionaries-container');
+            container.innerHTML = '';
+
+            if (dictionaries.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-sm py-8">Hozircha lug'atlar yo'q. "Yangi lug'at +" tugmasini bosing.</p>`;
+            } else {
+                dictionaries.forEach(dict => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-purple-900/40 to-emerald-900/40 border border-slate-700/60 hover:border-cyan-400 transition cursor-pointer";
+                    div.innerHTML = `
+                        <span class="font-bold text-white">${dict.name}</span>
+                        <span class="text-cyan-400 text-sm font-semibold">→</span>
+                    `;
+                    div.onclick = () => openDictionaryDetail(dict.id);
+                    container.appendChild(div);
+                });
+            }
+
+            document.getElementById('dict-list-view').classList.remove('hidden');
+            document.getElementById('dict-list-view').classList.add('flex');
+        }
+
+        function renderNewDictionaryForm() {
+            hideAllViews();
+            document.getElementById('new-dict-name').value = '';
+            document.getElementById('words-inputs-container').innerHTML = `
+                <div class="grid grid-cols-2 gap-2 word-row">
+                    <input type="text" placeholder="Koreyscha" class="kr-input px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+                    <input type="text" placeholder="O'zbekcha" class="uz-input px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+                </div>
+            `;
+            document.getElementById('new-dict-view').classList.remove('hidden');
+            document.getElementById('new-dict-view').classList.add('flex');
+        }
+
+        function addWordRow() {
+            const container = document.getElementById('words-inputs-container');
+            const div = document.createElement('div');
+            div.className = "grid grid-cols-2 gap-2 word-row";
+            div.innerHTML = `
+                <input type="text" placeholder="Koreyscha" class="kr-input px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" placeholder="O'zbekcha" class="uz-input px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            `;
+            container.appendChild(div);
+        }
+
+        function saveNewDictionary() {
+            const name = document.getElementById('new-dict-name').value.trim();
+            if (!name) {
+                alert("Iltimos, lug'at nomini kiriting!");
+                return;
+            }
+
+            const rows = document.querySelectorAll('#words-inputs-container .word-row');
+            let words = [];
+            rows.forEach(row => {
+                const kr = row.querySelector('.kr-input').value.trim();
+                const uz = row.querySelector('.uz-input').value.trim();
+                if (kr && uz) {
+                    words.push({ korean: kr, uzbek: uz });
+                }
+            });
+
+            if (words.length === 0) {
+                alert("Iltimos, kamida bitta to'liq so'z qo'shing!");
+                return;
+            }
+
+            const newDict = {
+                id: Date.now().toString(),
+                name: name,
+                words: words
+            };
+
+            dictionaries.push(newDict);
+            saveToStorage();
+            renderDictionaryList();
+        }
+
+        function openDictionaryDetail(dictId) {
+            currentDictId = dictId;
+            const dict = dictionaries.find(d => d.id === dictId);
+            if (!dict) return;
+
+            hideAllViews();
+            document.getElementById('detail-dict-title').innerText = dict.name;
+            
+            const wordsContainer = document.getElementById('detail-words-list');
+            wordsContainer.innerHTML = '';
+
+            if (dict.words.length === 0) {
+                wordsContainer.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">Bu lug'atda hali so'zlar yo'q.</p>`;
+            } else {
+                dict.words.forEach(w => {
+                    const item = document.createElement('div');
+                    item.className = "flex justify-between items-center py-2 px-3 bg-slate-900/60 rounded-xl border border-slate-800 text-sm";
+                    item.innerHTML = `
+                        <span class="font-semibold text-cyan-300">${w.korean}</span>
+                        <span class="text-slate-300">${w.uzbek}</span>
+                    `;
+                    wordsContainer.appendChild(item);
+                });
+            }
+
+            document.getElementById('dict-detail-view').classList.remove('hidden');
+            document.getElementById('dict-detail-view').classList.add('flex');
+        }
+
+        function deleteCurrentDictionary() {
+            if (confirm("Rostdan ham bu lug'atni o'chirmoqchimisiz?")) {
+                dictionaries = dictionaries.filter(d => d.id !== currentDictId);
+                saveToStorage();
+                renderDictionaryList();
+            }
+        }
+
+        function openEditDictionary() {
+            const dict = dictionaries.find(d => d.id === currentDictId);
+            if (!dict) return;
+
+            hideAllViews();
+            document.getElementById('edit-dict-name').value = dict.name;
+            
+            const container = document.getElementById('edit-words-container');
+            container.innerHTML = '';
+
+            dict.words.forEach(w => {
+                addEditWordRow(w.korean, w.uzbek);
+            });
+
+            document.getElementById('dict-edit-view').classList.remove('hidden');
+            document.getElementById('dict-edit-view').classList.add('flex');
+        }
+
+        function addEditWordRow(kr, uz) {
+            const container = document.getElementById('edit-words-container');
+            const div = document.createElement('div');
+            div.className = "grid grid-cols-2 gap-2 edit-word-row";
+            div.innerHTML = `
+                <input type="text" value="${kr}" placeholder="Koreyscha" class="edit-kr px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" value="${uz}" placeholder="O'zbekcha" class="edit-uz px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
+            `;
+            container.appendChild(div);
+        }
+
+        function saveEditedDictionary() {
+            const name = document.getElementById('edit-dict-name').value.trim();
+            if (!name) {
+                alert("Lug'at nomini bo'sh qoldirib bo'lmaydi!");
+                return;
+            }
+
+            const rows = document.querySelectorAll('#edit-words-container .edit-word-row');
+            let words = [];
+            rows.forEach(row => {
+                const kr = row.querySelector('.edit-kr').value.trim();
+                const uz = row.querySelector('.edit-uz').value.trim();
+                if (kr && uz) {
+                    words.push({ korean: kr, uzbek: uz });
+                }
+            });
+
+            const dict = dictionaries.find(d => d.id === currentDictId);
+            if (dict) {
+                dict.name = name;
+                dict.words = words;
+                saveToStorage();
+            }
+
+            openDictionaryDetail(currentDictId);
+        }
+
+        // --- TEST MANTIQI (FAQAT O'SHA LUG'ATDAGI SO'ZLARDAN) ---
+        function startTest() {
+            const dict = dictionaries.find(d => d.id === currentDictId);
+            if (!dict || dict.words.length < 4) {
+                alert("Test boshlash uchun ushbu lug'atda kamida 4 ta so'z bo'lishi shart!");
+                return;
+            }
+
+            // So'zlarni aralashtirish (Random qilish)
+            currentTestQuestions = [...dict.words].sort(() => Math.random() - 0.5);
+            currentTestIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+
+            hideAllViews();
+            document.getElementById('test-view').classList.remove('hidden');
+            document.getElementById('test-view').classList.add('flex');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            document.getElementById('next-question-btn').classList.add('hidden');
+            
+            const total = currentTestQuestions.length;
+            if (currentTestIndex >= total) {
+                showTestResult();
+                return;
+            }
+
+            document.getElementById('test-progress').innerText = `Savol ${currentTestIndex + 1} / ${total}`;
+            
+            const currentWord = currentTestQuestions[currentTestIndex];
+            document.getElementById('test-question-word').innerText = currentWord.korean;
+
+            const dict = dictionaries.find(d => d.id === currentDictId);
+            
+            // 1 ta to'g'ri tarjima
+            const correctAnswer = currentWord.uzbek;
+
+            // Qolgan lug'atlardan yoki shu lug'atning boshqa so'zlaridan 3 ta noto'g'ri variant tanlaymiz
+            let otherWords = dict.words.filter(w => w.uzbek !== correctAnswer);
+            otherWords.sort(() => Math.random() - 0.5);
+            
+            let options = [correctAnswer];
+            for (let i = 0; i < Math.min(3, otherWords.length); i++) {
+                options.push(otherWords[i].uzbek);
+            }
+
+            // Agar lug'atda jami so'zlar yetishmasa (garchi 4 tadan ko'p desa ham ehtiyot shart)
+            while(options.length < 4) {
+                options.push("Boshqa so'z " + options.length);
+            }
+
+            // Variantlarni aralashtiramiz
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('test-options-container');
+            optionsContainer.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-3 px-4 rounded-xl bg-slate-900/60 border border-slate-700 text-left font-semibold text-slate-200 hover:border-cyan-400 transition cursor-pointer flex items-center justify-between";
+                btn.innerHTML = `<span><strong class="text-cyan-400 mr-2">${letters[idx]}.</strong> ${opt}</span>`;
+                btn.onclick = () => selectAnswer(btn, opt, correctAnswer);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(buttonElement, selectedOption, correctAnswer) {
+            if (answered) return;
+            answered = true;
+
+            const allButtons = document.querySelectorAll('#test-options-container button');
+            
+            if (selectedOption === correctAnswer) {
+                buttonElement.classList.remove('bg-slate-900/60', 'border-slate-700');
+                buttonElement.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                correctCount++;
+            } else {
+                buttonElement.classList.remove('bg-slate-900/60', 'border-slate-700');
+                buttonElement.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+                wrongCount++;
+
+                // To'g'ri javobni yashil qilib ko'rsatamiz
+                allButtons.forEach(btn => {
+                    if (btn.innerText.includes(correctAnswer)) {
+                        btn.classList.remove('bg-slate-900/60', 'border-slate-700');
+                        btn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                    }
+                });
+            }
+
+            // Barcha tugmalarni bosishni to'xtatamiz
+            allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+            // Keyingi savol tugmasini chiqaramiz
+            document.getElementById('next-question-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentTestIndex++;
+            loadQuestion();
+        }
+
+        function showTestResult() {
+            hideAllViews();
+            const total = currentTestQuestions.length;
+            const percent = Math.round((correctCount / total) * 100);
+
+            document.getElementById('result-correct').innerText = correctCount;
+            document.getElementById('result-wrong').innerText = wrongCount;
+            document.getElementById('result-percent').innerText = percent + "%";
+
+            document.getElementById('test-result-view').classList.remove('hidden');
+            document.getElementById('test-result-view').classList.add('flex');
+        }
+    </script>
+</body>
+</html>
